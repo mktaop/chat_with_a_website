@@ -7,8 +7,7 @@ Created on Sun Mar  3 15:27:56 2024
 """
 
 import streamlit as st
-import bs4, os
-from langchain import hub
+import os
 from langchain_community.document_loaders import WebBaseLoader
 from langchain_community.vectorstores import Chroma
 from langchain_core.output_parsers import StrOutputParser
@@ -16,18 +15,16 @@ from langchain_core.runnables import RunnablePassthrough
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.messages import AIMessage, HumanMessage
+
 
 def setup_page():
     st.set_page_config(page_title="⚡ Chat with a website")
     header_text1 = "Chat with a website"
     st.header(f"      :blue[{header_text1}]", anchor=False)
     st.sidebar.title("Options")
-    #st.title("Chat with websites")
     
     
 def get_vectorstore_from_url(url):
-    
     loader = WebBaseLoader(url)
     docs = loader.load()
     text_splitter = RecursiveCharacterTextSplitter()
@@ -41,7 +38,6 @@ def format_docs(docs):
 
 
 def get_contexualize_q_prompt(llm):
-    
     contextualize_q_system_prompt = """Given a chat history and the latest user question \
     which might reference context in the chat history, formulate a standalone question \
     which can be understood without the chat history. Do NOT answer the question, \
@@ -75,7 +71,6 @@ def get_qa_prompt():
     return qa_prompt
 
 
-
 def get_clear():
     clear_button=st.sidebar.button("Clear Conversation", key="clear")
     return clear_button
@@ -96,7 +91,6 @@ def main():
         with st.chat_message(message[0]["role"],avatar="🧞‍♀️"):
             st.write(message[0]["content"])
 
-        #prompt = hub.pull("rlm/rag-prompt")
         llm = ChatOpenAI(model_name="gpt-3.5-turbo-0125", temperature=0)
         
         contextualize_q_chain = get_contexualize_q_prompt(llm)
@@ -127,11 +121,7 @@ def main():
                         chat_history.extend([HumanMessage(content=question), ai_msg])
                         response= ai_msg.content
                         st.write(response)
-        
-                        #second_question = "What are common ways of doing it?"
-                        #rag_chain.invoke({"question": second_question, "chat_history": chat_history})
-        
- 
+
                                
 if __name__ == '__main__':
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
